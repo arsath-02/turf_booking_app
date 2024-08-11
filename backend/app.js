@@ -7,6 +7,7 @@ const profileRoutes = require('./routes/profile');
 const paymentRoutes = require('./routes/payment');
 const webhookRoutes = require('./routes/webhooks');
 const ngrok = require('ngrok');
+const cors = require('cors');
 
 const app = express();
 
@@ -15,6 +16,7 @@ connectDB();
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // Routes
 app.use('/auth', authRoutes);

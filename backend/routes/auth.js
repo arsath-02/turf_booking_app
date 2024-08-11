@@ -9,13 +9,19 @@ const adminEmail = "arsath02@gmail.com";
 // Register new user
 router.post('/register', async (req, res) => {
     const { firstname, lastname, email, password, phonenumber } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const role = email === adminEmail ? 'admin' : 'user';
-    const newUser = new User({ firstname, lastname, email, password: hashedPassword, phonenumber, role });
+
+    if (!firstname || !lastname || !email || !password || !phonenumber) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
 
     try {
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const role = email === adminEmail ? 'admin' : 'user';
+        const newUser = new User({ firstname, lastname, email, password: hashedPassword, phonenumber, role });
+
         await newUser.save();
         const newToken = jwt.sign({ email: email, role: role }, "secretkey");
+
         res.status(200).json({
             success: true,
             data: {
@@ -25,12 +31,14 @@ router.post('/register', async (req, res) => {
         });
     } catch (err) {
         if (err.code === 11000) {
-            res.status(400).send('Email already exists');
+            
+            res.status(400).json({ message: 'Email already exists' });
         } else {
-            res.status(400).send('Error creating user');
+            res.status(400).json({ message: 'Error creating user', error: err.message });
         }
     }
 });
+
 
 // Login user
 router.post('/login', async (req, res) => {
