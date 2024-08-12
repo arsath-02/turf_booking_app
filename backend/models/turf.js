@@ -5,7 +5,7 @@ const turfSchema = new mongoose.Schema({
     location: { type: String, required: true },
     price: { type: String, required: true },
     rating: { type: String, required: true },
-    image: { type: String, required: true },
+    image: { type: Buffer },
     contactnumber: { type: String, required: true },
     pricePerHour: { type: Number, required: true },
     city: { type: String, required: true },

@@ -2,10 +2,32 @@ const express = require('express');
 const router = express.Router();
 const Turf = require('../models/turf');
 const authenticateJWT = require('../middleware/authMiddleware');
+const multer = require('multer');
 
-// Create new turf
+const storage = multer.memoryStorage(); 
+const upload = multer({ storage: storage });
+
+// Create new turf (Admin only)
 router.post('/', authenticateJWT, async (req, res) => {
+    const { role } = req.user;
+
+    if (role !== 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Access denied. Only admins can register a turf.'
+        });
+    }
+
     const { name, location, price, rating, image, contactnumber, pricePerHour, city } = req.body;
+
+    // Simple server-side validation
+    if (!name || !location || !price || !contactnumber || !pricePerHour || !city || !image) {
+        return res.status(400).json({
+            success: false,
+            message: 'Please provide all required fields.'
+        });
+    }
+
     const newTurf = new Turf({ name, location, price, rating, image, contactnumber, pricePerHour, city });
 
     try {
@@ -18,6 +40,7 @@ router.post('/', authenticateJWT, async (req, res) => {
         res.status(400).send('Error creating turf');
     }
 });
+
 
 // Get all turfs
 router.get('/', async (req, res) => {
