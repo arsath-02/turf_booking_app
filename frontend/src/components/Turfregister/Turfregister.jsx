@@ -38,14 +38,13 @@ const TurfBooking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
 
-    const { name, location, rating, price, contactnumber, pricePerHour, city } = formData;
-    if (!name || !location || !price || !contactnumber || !pricePerHour || !city || !formData.image) {
+    const { name, location, rating, price, contactnumber, pricePerHour, city, image } = formData;
+    if (!name || !location || !price || !contactnumber || !pricePerHour || !city || !image) {
       alert('Please provide all required fields.');
       return;
     }
-  
+
     setLoading(true);
     try {
       const formDataToSend = new FormData();
@@ -54,19 +53,19 @@ const TurfBooking = () => {
           formDataToSend.append(key, formData[key]);
         }
       });
-  
+
       const response = await axios.post('http://localhost:3000/turfs', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-  
+
       console.log('Response:', response.data); // Log response data
       navigate('/success');
     } catch (error) {
       console.error('Error registering turf:', error);
-  
+
       if (error.response) {
         alert(error.response.data.message || 'Failed to register turf');
       } else if (error.request) {
@@ -78,7 +77,6 @@ const TurfBooking = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="flex justify-center bg-gray-100">

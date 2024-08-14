@@ -8,7 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Create new turf (Admin only)
-router.post('/', authenticateJWT, async (req, res) => {
+router.post('/', authenticateJWT, upload.single('image'), async (req, res) => {
     const { role } = req.user;
 
     if (role !== 'admin') {
@@ -18,7 +18,8 @@ router.post('/', authenticateJWT, async (req, res) => {
         });
     }
 
-    const { name, location, price, rating, image, contactnumber, pricePerHour, city } = req.body;
+    const { name, location, price, rating, contactnumber, pricePerHour, city } = req.body;
+    const image = req.file;
 
     // Simple server-side validation
     if (!name || !location || !price || !contactnumber || !pricePerHour || !city || !image) {
@@ -28,7 +29,7 @@ router.post('/', authenticateJWT, async (req, res) => {
         });
     }
 
-    const newTurf = new Turf({ name, location, price, rating, image, contactnumber, pricePerHour, city });
+    const newTurf = new Turf({ name, location, price, rating, image: image.buffer, contactnumber, pricePerHour, city });
 
     try {
         await newTurf.save();
@@ -40,7 +41,6 @@ router.post('/', authenticateJWT, async (req, res) => {
         res.status(400).send('Error creating turf');
     }
 });
-
 
 // Get all turfs
 router.get('/', async (req, res) => {

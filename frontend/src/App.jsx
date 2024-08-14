@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Register from './components/auth/Register/Register';
 import Login from './components/auth/Login/Login';
-import TurfRegister from './components/Turfbooking/Turfbooking';
+import TurfRegister from './components/Turfregister/Turfregister';
 import Success from './components/Success/Success';
 
 
