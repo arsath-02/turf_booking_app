@@ -57,7 +57,7 @@ export const Login = () => {
         if (user.role === 'admin') {
           navigate('/turfs');
         } else {
-          navigate('/home');
+          navigate('/');
         }
       } else {
         setMessage(data.message || 'Login failed. Please try again.');
