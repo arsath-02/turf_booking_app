@@ -40,7 +40,7 @@ router.put('/', authenticateJWT, async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(
             req.user.userid,
             { firstname, lastname, email, phonenumber },
-            { new: true } // Return the updated user
+            { new: true } 
         );
 
         if (!updatedUser) {

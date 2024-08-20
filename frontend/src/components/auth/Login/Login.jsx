@@ -55,7 +55,7 @@ export const Login = () => {
         localStorage.setItem('userRole', user.role);
         localStorage.setItem('token', token);
         if (user.role === 'admin') {
-          navigate('/turfs');
+          navigate('/turfs/register');
         } else {
           navigate('/');
         }
