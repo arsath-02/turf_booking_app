@@ -8,6 +8,7 @@ import Home from './components/Home/Home';
 import Profile from './components/Home/Profile';
 import Turfs from './components/Turf/Turf';
 import Bookings from './components/Bookings/BookingsList';
+import BookingForm from './components/BookingForm/BookingForm';
 
 
 function App() {
@@ -21,7 +22,9 @@ function App() {
       <Route path='/profile' element={<Profile/>}/>
       <Route path='/turfs' element={<Turfs />} />
       <Route path='/bookings' element={<Bookings />} />
+      <Route path='/bookings/new' element={<BookingForm />} />
       
+
     </Routes>
   );
 }
