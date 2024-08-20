@@ -21,7 +21,6 @@ router.post('/', authenticateJWT, upload.single('image'), async (req, res) => {
     const { name, location, price, rating, contactnumber, pricePerHour, city } = req.body;
     const image = req.file;
 
-    // Simple server-side validation
     if (!name || !location || !price || !contactnumber || !pricePerHour || !city || !image) {
         return res.status(400).json({
             success: false,
@@ -52,6 +51,21 @@ router.get('/', async (req, res) => {
         });
     } catch (err) {
         res.status(400).send('Error fetching turfs');
+    }
+});
+
+// Serve image by ID
+router.get('/image/:id', async (req, res) => {
+    try {
+        const turf = await Turf.findById(req.params.id);
+        if (!turf || !turf.image) {
+            return res.status(404).json({ message: 'Image not found' });
+        }
+
+        res.set('Content-Type', 'image/jpeg');
+        res.send(turf.image);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching image', error: err });
     }
 });
 

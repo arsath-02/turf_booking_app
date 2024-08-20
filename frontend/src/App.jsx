@@ -7,6 +7,7 @@ import Success from './components/Success/Success';
 import Home from './components/Home/Home';
 import Profile from './components/Home/Profile';
 import Turfs from './components/Turf/Turf';
+import Bookings from './components/Bookings/BookingsList';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       <Route path='/' element={<Home/>}/>
       <Route path='/profile' element={<Profile/>}/>
       <Route path='/turfs' element={<Turfs />} />
+      <Route path='/bookings' element={<Bookings />} />
       
     </Routes>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const TurfList = () => {
     const [turfs, setTurfs] = useState([]);
@@ -13,7 +13,6 @@ const TurfList = () => {
                     throw new Error('Failed to fetch turfs');
                 }
                 const data = await response.json();
-                console.log('Fetched data:', data); // Log the fetched data
                 setTurfs(data.data);
             } catch (error) {
                 setError(error.message);
@@ -40,10 +39,10 @@ const TurfList = () => {
                 {turfs.map(turf => (
                     <div key={turf._id} className="border rounded-lg shadow-lg p-4">
                         <img 
-                            src={`http://localhost:3000/${turf.image}`} 
+                            src={`http://localhost:3000/turfs/image/${turf._id}`} 
                             alt={turf.name} 
                             className="w-full h-48 object-cover rounded-md mb-4"
-                            onError={(e) => console.error('Image load error:', e)} // Log image load errors
+                            onError={(e) => console.error('Image load error:', e)} 
                         />
                         <h2 className="text-2xl font-semibold mb-2">{turf.name}</h2>
                         <p className="text-gray-700 mb-2">{turf.location}</p>
