@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const BookingForm = ({ turfId }) => { // Accept turfId as a prop
+const BookingForm = () => {
+    const { turfId } = useParams(); // Extract turfId from the URL
     const [turfs, setTurfs] = useState([]);
-    const [selectedTurf, setSelectedTurf] = useState(turfId || ''); // Initialize with prop value
+    const [selectedTurf, setSelectedTurf] = useState(turfId || ''); 
     const [bookingDate, setBookingDate] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
@@ -52,7 +53,7 @@ const BookingForm = ({ turfId }) => { // Accept turfId as a prop
                 },
             });
 
-            navigate('/success'); 
+            navigate('/bookings/details', { state: { booking: response.data } });
         } catch (error) {
             console.error('Error creating booking:', error);
             setError('Failed to create booking. Please try again.');
@@ -138,10 +139,13 @@ const BookingForm = ({ turfId }) => { // Accept turfId as a prop
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Total Amount</label>
+                        <label htmlFor="totalAmount" className="block text-sm font-medium text-gray-700">
+                            Total Amount
+                        </label>
                         <input
                             type="text"
-                            value={totalAmount.toFixed(2)}
+                            id="totalAmount"
+                            value={`$${totalAmount.toFixed(2)}`}
                             readOnly
                             className="w-full mt-2 p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
                         />
@@ -149,10 +153,9 @@ const BookingForm = ({ turfId }) => { // Accept turfId as a prop
 
                     <button
                         type="submit"
-                        className="w-full mt-4 p-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        disabled={loading}
+                        className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
-                        {loading ? 'Booking...' : 'Book Now'}
+                        Confirm Booking
                     </button>
                 </form>
             </div>

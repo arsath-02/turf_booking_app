@@ -11,14 +11,14 @@ router.post('/', authenticateJWT, async (req, res) => {
     session.startTransaction();
 
     try {
-        const {turfId, bookingDate, startTime, endTime, totalAmount } = req.body;
+        const { turfId, bookingDate, startTime, endTime, totalAmount } = req.body;
         const userId = req.user.userid;
 
         if (!turfId || !bookingDate || !startTime || !endTime || !totalAmount) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
 
-        // Check for overlapping bookings
+        
         const existingBooking = await Booking.findOne({
             turfId,
             bookingDate,
@@ -41,7 +41,7 @@ router.post('/', authenticateJWT, async (req, res) => {
 
         const savedBooking = await newBooking.save({ session });
 
-        // Update user's bookings array
+        
         await User.findByIdAndUpdate(userId, { $push: { bookings: savedBooking._id } }, { session });
 
         await session.commitTransaction();
@@ -73,6 +73,94 @@ router.get('/', authenticateJWT, async (req, res) => {
         });
     } catch (err) {
         res.status(400).json({ success: false, message: 'Error fetching bookings', error: err.message });
+    }
+});
+
+// Update 
+router.put('/:id', authenticateJWT, async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { id } = req.params;
+        const { bookingDate, startTime, endTime, totalAmount } = req.body;
+        const userId = req.user.userid;
+
+        const booking = await Booking.findById(id);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+
+        if (booking.userId.toString() !== userId) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        booking.bookingDate = bookingDate || booking.bookingDate;
+        booking.startTime = startTime || booking.startTime;
+        booking.endTime = endTime || booking.endTime;
+        booking.totalAmount = totalAmount || booking.totalAmount;
+
+        const updatedBooking = await booking.save({ session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({
+            success: true,
+            message: 'Booking updated successfully',
+            data: updatedBooking
+        });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        res.status(500).json({
+            success: false,
+            message: 'Error updating booking',
+            error: error.message
+        });
+    }
+});
+
+// Cancel 
+router.delete('/:id', authenticateJWT, async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { id } = req.params;
+        const userId = req.user.userid;
+
+        const booking = await Booking.findById(id);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+
+        if (booking.userId.toString() !== userId) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        await Booking.deleteOne({ _id: id }, { session });
+
+        // Update 
+        await User.findByIdAndUpdate(userId, { $pull: { bookings: id } }, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({
+            success: true,
+            message: 'Booking cancelled successfully'
+        });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        res.status(500).json({
+            success: false,
+            message: 'Error cancelling booking',
+            error: error.message
+        });
     }
 });
 

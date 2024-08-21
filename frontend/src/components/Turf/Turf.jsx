@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate,Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const TurfList = () => {
     const [turfs, setTurfs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); // Ensure navigate is defined here
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const fetchTurfs = async () => {
@@ -58,14 +58,12 @@ const TurfList = () => {
                         <p className="text-gray-700 mb-2">Rating: {turf.rating}</p>
                         <p className="text-gray-700 mb-2">Contact: {turf.contactnumber}</p>
                         <div className="text-center mt-4">
-                            <Link to='/bookings/new'>
                             <button 
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                 onClick={() => handleBookNow(turf._id)}
                             >
                                 Book Now
                             </button>
-                            </Link>
                         </div>
                     </div>
                 ))}
