@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import '../turf/turf_details.dart'; // Import the TurfDetailsPage
+import 'package:flutter/material.dart';// Import the TurfDetailsPage
 import '../comminity/cm.dart'; // Import the Cm page
-import '../find_match/find.dart'; // Import the FindMatch page
+import '../find_match/find.dart';
+import '../screens/turf_booking_screen.dart'; // Import the FindMatch page
 
 class LandPage extends StatelessWidget {
   const LandPage({Key? key}) : super(key: key);
@@ -89,9 +89,10 @@ class LandPage extends StatelessWidget {
             case 0:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => TurfDetailsPage(turfId: '1')), // Pass the turfId
+                MaterialPageRoute(builder: (context) => TurfBookingScreen()), // Navigate to Find Match page
               );
               break;
+
             case 1:
               Navigator.push(
                 context,

@@ -1,0 +1,41 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<form id="payment-form">
+    <button type="submit">Pay</button>
+</form>
+
+<script>
+    const form = document.getElementById('payment-form');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        // Get order details from your server
+        const response = await fetch('/payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingId: 'YOUR_BOOKING_ID', amount: 40 })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const options = {
+                key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay key ID
+                amount: result.data.amount, // Amount in paise
+                currency: 'INR',
+                order_id: result.data.id,
+                handler: function (response) {
+                    console.log(response);
+                },
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        } else {
+            console.error('Error fetching payment details');
+        }
+    });
+</script>

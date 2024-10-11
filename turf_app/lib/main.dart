@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'auth/register.dart';  // Import the Register page
-import 'auth/login.dart';     // Import the Login page
-import 'turf/turf_details.dart'; // Import the TurfDetailsPage
+import 'auth/login.dart';     // Import the Login page 
 import 'comminity/cm.dart'; // Import the Cm page
 import 'find_match/find.dart'; // Import the FindMatch page
 import 'ld/land.dart'; // Import the Land page
+import 'screens/turf_booking_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,15 +27,10 @@ class MyApp extends StatelessWidget {
         '/auth/register': (context) => const Register(),   // Register route
         '/auth/login': (context) => const Login(),         // Login route
         '/find_match/find': (context) => const FindMatch(), 
-        '/ld/land': (context) => const LandPage(),          // Route to the Land page (Offers)
+        '/ld/land': (context) => const LandPage(),  
+        '/screens/turf_booking_screen': (context) => TurfBookingScreen(),      // Route to the Land page (Offers)
       },
       onGenerateRoute: (settings) {
-        if (settings.name == '/turf/details') {
-          final turfId = settings.arguments as String; // Cast the arguments to String
-          return MaterialPageRoute(
-            builder: (context) => TurfDetailsPage(turfId: turfId), // Pass turfId to TurfDetailsPage
-          );
-        }
         if (settings.name == '/comminity/cm') {
           // Define a list of communities to pass to Cm
           final List<Map<String, dynamic>> communities = [
@@ -78,7 +74,10 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 10),
             buildNavigationButton(context, '/find_match/find', 'Find Team'),
             const SizedBox(height: 10),
-            buildNavigationButton(context, '/ld/land', 'landing page'), // Navigate to Offers (Land) Page
+            buildNavigationButton(context, '/ld/land', 'landing page'), 
+            const SizedBox(height: 10),
+            buildNavigationButton(context,'/screens/turf_booking_screen','booking'),
+
           ],
         ),
       ),
