@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const turfRoutes = require('./routes/turfs');
@@ -25,7 +26,7 @@ app.use('/profile', profileRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/webhooks', webhookRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);

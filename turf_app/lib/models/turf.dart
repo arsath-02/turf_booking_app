@@ -33,7 +33,7 @@ class Turf {
       contactNumber: json['contactnumber'] ?? 'No Contact', // Default contact number
       pricePerHour: json['pricePerHour']?.toString() ?? '0', // Default to 0 if null
       city: json['city'] ?? 'Unknown City', // Default city
-      imageUrl: json.containsKey('_id') ? 'http://localhost:3000/turfs/image/${json['_id']}' : 'https://placehold.co/150', // Fallback image
+      imageUrl: json.containsKey('_id') ? 'https://turf-booking-app-e7rc.onrender.com/turfs/image/${json['_id']}' : 'https://placehold.co/150', // Fallback image
       category: json['category'] ?? 'General', // Default category
     );
   }

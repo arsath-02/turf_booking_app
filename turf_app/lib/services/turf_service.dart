@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/turf.dart';
 
 class TurfService {
-  final String baseUrl = 'http://localhost:3000'; // Ensure this URL is correct
+  final String baseUrl = 'https://turf-booking-app-e7rc.onrender.com'; // Ensure this URL is correct
 
   // Fetch all turfs from API
   Future<List<Turf>> fetchAllTurfs({String category = 'all'}) async {

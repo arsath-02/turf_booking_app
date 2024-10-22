@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import '../models/turf.dart';
 import '../services/turf_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart'; // For date formatting
 
 class TurfDetailsScreen extends StatefulWidget {
   final String turfId; // Turf ID to fetch details
 
-  TurfDetailsScreen({Key? key, required this.turfId}) : super(key: key);
+  TurfDetailsScreen({required this.turfId});
 
   @override
   _TurfDetailsScreenState createState() => _TurfDetailsScreenState();
@@ -19,10 +18,18 @@ class _TurfDetailsScreenState extends State<TurfDetailsScreen> {
   final TextEditingController _endTimeController = TextEditingController();
   bool _isHovered = false;
 
+  late Future<Turf> _turfFuture; // Store the future to avoid multiple fetching
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch turf details once and store the Future
+    _turfFuture = TurfService().fetchTurfDetails(widget.turfId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[200], // Set background color
       appBar: AppBar(
         title: Text('Book Your Slot'),
         leading: IconButton(
@@ -31,7 +38,7 @@ class _TurfDetailsScreenState extends State<TurfDetailsScreen> {
         ),
       ),
       body: FutureBuilder<Turf>(
-        future: TurfService().fetchTurfDetails(widget.turfId), // Fetch turf details
+        future: _turfFuture, // Use the stored Future
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -59,7 +66,6 @@ class _TurfDetailsScreenState extends State<TurfDetailsScreen> {
                     _buildDetailBox(turf), // Combined detail box
                     SizedBox(height: 16),
                     Text('Book Your slots here:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-
                     // Date input field
                     TextFormField(
                       controller: _dateController,
@@ -80,7 +86,7 @@ class _TurfDetailsScreenState extends State<TurfDetailsScreen> {
                         );
                         if (pickedDate != null) {
                           setState(() {
-                            _dateController.text = DateFormat('dd-MM-yyyy').format(pickedDate); // Proper date format
+                            _dateController.text = "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
                           });
                         }
                       },
@@ -135,7 +141,6 @@ class _TurfDetailsScreenState extends State<TurfDetailsScreen> {
                         }
                       },
                     ),
-
                     _buildWeatherInfo('Weather', 'cloudy'), // Replace with dynamic weather data if available
                     SizedBox(height: 16),
                     ElevatedButton(
@@ -180,7 +185,7 @@ class _TurfDetailsScreenState extends State<TurfDetailsScreen> {
             _buildDetailRow('Price:', 'INR ${turf.price.toStringAsFixed(2)}'),
             SizedBox(height: 8),
             _buildDetailRow('Rating:', ''),
-            _buildStarRating(turf.rating),
+          _buildStarRating(turf.rating),
           ],
         ),
       ),
