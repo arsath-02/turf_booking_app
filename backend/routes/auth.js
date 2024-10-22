@@ -1,30 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const TurfOwner = require('../models/turfowners');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const TurfOwner = require('../models/turfowners'); 
+
+// Admin email for role assignment
 const adminEmail = "arsath02@gmail.com";
 
-// Import necessary modules
-// Admin email for role assignment
-
-// Register new user or turf owner
+// Register Route
 router.post('/register', async (req, res) => {
     const { firstname, lastname, email, password, phonenumber, userType, city } = req.body;
-    console.log(req.body);
-
-    // Check if required fields are present
+    
+    // Ensure all required fields are present
     if (!firstname || !lastname || !email || !password || !phonenumber || !userType || (userType === 'turfOwner' && !city)) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const role = email === adminEmail ? 'admin' : 'user';
-        const newUser = { firstname, lastname, email, password: hashedPassword, phonenumber, role, city };
+        // Check if the email is already registered
+        const existingUser = await User.findOne({ email }) || await TurfOwner.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email already exists' });
+        }
 
-        // Save the user as either a normal user or a turf owner
+        // Hash the password before storing it
+        
+        const role = email === adminEmail ? 'admin' : 'user';
+        const newUser = { firstname, lastname, email, password: password, phonenumber, role, city };
+
+        // Store the user either in the TurfOwner or User collection
         if (userType === 'turfOwner') {
             const newTurfOwner = new TurfOwner(newUser);
             await newTurfOwner.save();
@@ -33,10 +38,10 @@ router.post('/register', async (req, res) => {
             await newUserInstance.save();
         }
 
-        // Generate JWT token
-        const token = jwt.sign({ email: email, role: role }, "secretkey");
+        // Generate a JWT token
+        const token = jwt.sign({ email, role }, process.env.JWT_SECRET || "yourFallbackSecretKey", { expiresIn: '1h' });
 
-        // Send a single response with both success message and token
+        // Respond with a success message and the token
         return res.status(200).json({
             message: 'Registration successful',
             success: true,
@@ -45,30 +50,20 @@ router.post('/register', async (req, res) => {
                 user: { firstname, lastname, email, phonenumber, role, city }
             }
         });
-
     } catch (err) {
-        // Handle duplicate email error
-        if (err.code === 11000) {
-            return res.status(400).json({ message: 'Email already exists' });
-        } else {
-            // Handle server error
-            console.log('Error inserting user:', err);  // Log the error for debugging
-            return res.status(500).json({ message: 'Server error', error: err.message });
-        }
+        console.error('Error during registration:', err);
+        return res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
-
-
-
+// Login Route
 router.post('/login', async (req, res) => {
-    const { email, password, userType } = req.body; 
-    let existingUser;
+    const { email, password, userType } = req.body;
 
     try {
-        console.log(`Attempting to login user: ${email}, userType: ${userType}`);
+        let existingUser;
 
-        // Check user type
+        // Query the correct collection based on userType
         if (userType === 'turfOwner') {
             existingUser = await TurfOwner.findOne({ email });
         } else if (userType === 'user') {
@@ -77,32 +72,28 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid user type' });
         }
 
-        // Check if user exists
+        // Check if the user exists
         if (!existingUser) {
-            console.log('User not found');
             return res.status(400).json({ success: false, message: 'User does not exist' });
         }
 
-        console.log('Existing User:', existingUser);
-        console.log('Stored hashed password:', existingUser.password);
-        console.log('Trying to login with password:', password);
-
-        // Verify password
+        // Compare the entered password with the hashed password
         const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
         if (!isPasswordCorrect) {
-            console.log('Invalid password');
-            return res.status(400).json({ success: false, message: 'Invalid credentials' });
+            return res.status(400).json({ success: false, message: 'Incorrect password' });
         }
 
-        // Generate JWT token
+        // Generate a JWT token for the logged-in user
         const token = jwt.sign(
             { email: existingUser.email, role: existingUser.role },
-            process.env.JWT_SECRET || 'yourFallbackSecretKey'
+            process.env.JWT_SECRET || 'yourFallbackSecretKey',
+            { expiresIn: '1h' }
         );
-        
-        // Return successful response
-        res.status(200).json({
+
+        // Return success response with token and user data
+        return res.status(200).json({
             success: true,
+            message: 'Login successful',
             data: {
                 token: token,
                 user: {
@@ -113,9 +104,8 @@ router.post('/login', async (req, res) => {
         });
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+        return res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
-
 
 module.exports = router;
