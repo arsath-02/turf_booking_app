@@ -32,7 +32,7 @@ router.post('/auth/login', [
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password); // Correct bcrypt usage
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -50,7 +50,7 @@ router.post('/auth/login', [
       user: { id: user._id, email: user.email, role: user.role },
     });
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error('Error during login:', error.message); // Log the error message
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -63,7 +63,7 @@ router.post('/register', [
   check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
   check('phonenumber').not().isEmpty().withMessage('Phonenumber is required'),
   check('userType').isIn(['user', 'turfOwner']).withMessage('User type must be either user or turfOwner'),
-  check('city').optional().not().isEmpty().withMessage('City is required for turf owners')
+  check('city').if((value, { req }) => req.body.userType === 'turfOwner').notEmpty().withMessage('City is required for turf owners')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -91,7 +91,9 @@ router.post('/register', [
       : new TurfOwner({ firstname, lastname, email, password: hashedPassword, phonenumber, role, city });
 
     await newUser.save();
-    const token = jwt.sign({ email: email, role: role }, process.env.JWT_SECRET);
+
+    const token = jwt.sign({ email: email, role: role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -101,7 +103,7 @@ router.post('/register', [
       }
     });
   } catch (err) {
-    console.error('Error registering user:', err);
+    console.error('Error registering user:', err.message); // Log error message
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
